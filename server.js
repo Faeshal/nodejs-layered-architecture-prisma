@@ -4,10 +4,12 @@ require("pretty-error").start();
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3000;
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 const morgan = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
-const SequelizeStore = require("connect-session-sequelize")(session.Store);
+const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const compression = require("compression");
 const hpp = require("hpp");
 const helmet = require("helmet");
@@ -15,7 +17,6 @@ const log4js = require("log4js");
 const paginate = require("express-paginate");
 const dayjs = require("dayjs");
 const { errorHandler } = require("./middleware/errorHandler");
-const db = require("./models");
 const log = log4js.getLogger("entrypoint");
 log.level = "info";
 
@@ -44,14 +45,14 @@ app.use(morgan("morgan: [:time] :method :url - :status"));
 app.set("trust proxy", 1);
 app.use(
   session({
+    cookie: { maxAge: 14 * 24 * 60 * 60 * 1000 },
     secret: process.env.COOKIE_SECRET,
-    store: new SequelizeStore({
-      db: db.sequelize,
-      expiration: 384 * 60 * 60 * 1000, // 16 days in milisecond
-    }),
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 14 * 24 * 60 * 60 * 1000 }, // 14 days
+    store: new PrismaSessionStore(new PrismaClient(), {
+      checkPeriod: 2 * 60 * 1000, //ms
+      dbRecordIdIsSessionId: true,
+    }),
   })
 );
 
@@ -65,6 +66,22 @@ app.use(require("./routes"));
 app.use(errorHandler);
 
 // * Rolliing log (optional)
+
+// * Database
+async function prismaMain() {
+  await prisma.income.count();
+}
+
+prismaMain()
+  .then(async () => {
+    log.info("prisma connected ✅");
+    await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    log.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
 
 // * Server Listen
 app.listen(PORT, (err) => {

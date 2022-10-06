@@ -11,8 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^4.4.0",
+    "@quixo3/prisma-session-store": "^3.1.10",
     "compression": "^1.7.4",
-    "connect-session-sequelize": "^7.1.4",
     "cors": "^2.8.5",
     "dayjs": "^1.11.4",
     "dotenv": "^16.0.1",
@@ -27,14 +28,13 @@
     "morgan": "^1.10.0",
     "mysql2": "^2.3.3",
     "pretty-error": "^4.0.0",
-    "sequelize": "^6.21.0",
-    "sequelize-cli": "^6.4.1",
     "underscore": "^1.13.4"
   },
   "devDependencies": {
     "chai": "^4.3.6",
     "chai-http": "^4.3.0",
     "mocha": "^10.0.0",
-    "nodemon": "^2.0.19"
+    "nodemon": "^2.0.19",
+    "prisma": "^4.4.0"
   }
 }
