@@ -1,4 +1,4 @@
-## Node.JS Layered Architecture
+## Node.JS Layered Architecture Prisma [🚨DEPRECATED]
 
 🥇 Service Layer Architecture for Node.js Boilerplate REST API with **[Prisma](https://www.prisma.io/)** ORM
 
